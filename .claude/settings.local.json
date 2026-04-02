@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.goodmds.com)",
+      "Bash(npm run:*)",
+      "Bash(find 'c:/Users/AI Robin/Documents/greatdoctors' -name *.docx)",
+      "Bash(node -e \":*)",
+      "Bash(npm install:*)",
+      "Bash(netlify deploy:*)"
+    ]
+  }
+}

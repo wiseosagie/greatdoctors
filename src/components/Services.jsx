@@ -46,6 +46,19 @@ const categories = [
     ],
   },
   {
+    id: 'weightloss',
+    label: 'Weight Loss',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M18 2l4 4-4 4"/>
+      </svg>
+    ),
+    color: '#0A9B8C',
+    services: [
+      { name: 'Weight Loss Medications', price: 'From $149.99/mo' },
+    ],
+  },
+  {
     id: 'mens',
     label: "Men's Health",
     icon: (
@@ -56,7 +69,6 @@ const categories = [
     color: '#0A2463',
     services: [
       { name: 'Hair Loss Treatment', price: '$39.99' },
-      { name: 'Weight Loss Medications', price: 'From $149.99/mo' },
       { name: "General Men's Health", price: '$39.99' },
     ],
   },
@@ -94,7 +106,7 @@ const categories = [
 export default function Services() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
-  const [active, setActive] = useState('sexual')
+  const [active, setActive] = useState('all')
   const navigate = useNavigate()
 
   const handleServiceClick = (serviceName) => {
@@ -110,7 +122,10 @@ export default function Services() {
     }
   }
 
-  const current = categories.find(c => c.id === active)
+  const allServices = categories.flatMap(c => c.services.map(s => ({ ...s, color: c.color })))
+  const current = active === 'all'
+    ? { services: allServices, color: '#0A2463' }
+    : categories.find(c => c.id === active)
 
   return (
     <section id="services" className="services" ref={ref}>
@@ -129,6 +144,22 @@ export default function Services() {
         </motion.div>
 
         <div className="services__tabs">
+          <motion.button
+            className={`services__tab ${active === 'all' ? 'active' : ''}`}
+            onClick={() => setActive('all')}
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.1 }}
+            style={{ '--tab-color': '#0A2463' }}
+          >
+            <span className="services__tab-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+              </svg>
+            </span>
+            All Services
+          </motion.button>
           {categories.map((cat, i) => (
             <motion.button
               key={cat.id}
@@ -136,7 +167,7 @@ export default function Services() {
               onClick={() => setActive(cat.id)}
               initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.1 + i * 0.06 }}
+              transition={{ delay: 0.15 + i * 0.06 }}
               style={{ '--tab-color': cat.color }}
             >
               <span className="services__tab-icon">{cat.icon}</span>
@@ -160,11 +191,11 @@ export default function Services() {
                 className="service-card"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ delay: i * 0.03 }}
                 onClick={() => handleServiceClick(svc.name)}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="service-card__dot" style={{ background: current.color }} />
+                <div className="service-card__dot" style={{ background: svc.color || current.color }} />
                 <div className="service-card__info">
                   <span className="service-card__name">{svc.name}</span>
                   <span className="service-card__price">{svc.price}</span>

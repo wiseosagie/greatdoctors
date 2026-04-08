@@ -325,14 +325,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (!adminUser) return
     setLoading(true)
-    fetch('/api/get-submissions')
-      .then(r => r.json())
-      .then(data => {
-        setSubmissions(data.submissions || [])
-        setLoading(false)
-      })
-      .catch(err => {
-        setError(err.message)
+    supabase
+      .from('submissions')
+      .select('*')
+      .order('submitted_at', { ascending: false })
+      .then(({ data, error: err }) => {
+        if (err) { setError(err.message) }
+        else { setSubmissions(data || []) }
         setLoading(false)
       })
   }, [adminUser])

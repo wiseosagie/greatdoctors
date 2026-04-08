@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Individual question renderers
@@ -269,9 +270,38 @@ export default function ConsultationWizard({ condition, onSubmit }) {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const [direction, setDirection] = useState(1)
+  const [hasProfile, setHasProfile] = useState(false)
   const topRef = useRef(null)
 
-  const steps = condition.steps
+  // Pre-fill patient info from last submission and skip the step if found
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('submissions')
+      .select('patient_info')
+      .eq('user_id', user.id)
+      .order('submitted_at', { ascending: false })
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (!data?.patient_info) return
+        const pi = data.patient_info
+        if (!pi.firstName || !pi.phone) return // incomplete profile, show step
+        setHasProfile(true)
+        setAnswers(prev => ({
+          ...prev,
+          first_name: pi.firstName || '',
+          last_name:  pi.lastName  || '',
+          phone:      pi.phone     || '',
+          email:      pi.email     || '',
+          dob:        pi.dob       || '',
+          gender:     pi.gender    || '',
+        }))
+      })
+  }, [user])
+
+  // Filter out patient_info step if user already has a profile
+  const steps = condition.steps.filter(s => !(hasProfile && s.id === 'patient_info'))
   const currentStep = steps[stepIdx]
   const progress = ((stepIdx) / steps.length) * 100
 
@@ -326,19 +356,26 @@ export default function ConsultationWizard({ condition, onSubmit }) {
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      const payload = {
-        condition: condition.name,
-        conditionId: condition.id,
-        timestamp: new Date().toISOString(),
-        answers,
-        userId: user?.id || null,
+      const id = `${condition.id}-${Date.now()}`
+
+      const patientInfo = {
+        firstName: answers?.first_name || '',
+        lastName:  answers?.last_name  || '',
+        phone:     answers?.phone      || '',
+        email:     answers?.email      || '',
+        dob:       answers?.dob        || '',
+        gender:    answers?.gender     || '',
       }
-      await fetch('/.netlify/functions/log-submission', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }).catch(() => {}) // graceful fail in dev
-      if (onSubmit) onSubmit(payload)
+
+      await supabase.from('submissions').insert({
+        id,
+        user_id:      user?.id || null,
+        condition:    condition.name,
+        condition_id: condition.id,
+        patient_info: patientInfo,
+        answers,
+      })
+
     } finally {
       setSubmitting(false)
       setSubmitted(true)

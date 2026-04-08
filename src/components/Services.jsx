@@ -56,7 +56,7 @@ const categories = [
     color: '#0A2463',
     services: [
       { name: 'Hair Loss Treatment', price: '$39.99' },
-      { name: 'Weight Loss Medications', price: '$49.99' },
+      { name: 'Weight Loss Medications', price: 'From $149.99/mo' },
       { name: "General Men's Health", price: '$39.99' },
     ],
   },
@@ -98,6 +98,10 @@ export default function Services() {
   const navigate = useNavigate()
 
   const handleServiceClick = (serviceName) => {
+    if (serviceName === 'Weight Loss Medications') {
+      navigate('/weight-loss')
+      return
+    }
     const conditionId = SERVICE_TO_QUESTION_MAP[serviceName]
     if (conditionId) {
       navigate(`/consult/${conditionId}`)

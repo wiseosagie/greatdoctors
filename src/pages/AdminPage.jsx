@@ -325,7 +325,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (!adminUser) return
     setLoading(true)
-    fetch('/.netlify/functions/get-submissions')
+    fetch('/api/get-submissions')
       .then(r => r.json())
       .then(data => {
         setSubmissions(data.submissions || [])

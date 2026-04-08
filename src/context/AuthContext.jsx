@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
 
   const resetPassword = (email) =>
     supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`,
+      redirectTo: `https://wonderful-tree-09a501710.2.azurestaticapps.net/auth`,
     })
 
   return (

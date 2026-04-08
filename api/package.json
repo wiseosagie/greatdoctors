@@ -1,0 +1,8 @@
+{
+  "name": "greatdoctorsusa-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API for Great Doctors USA",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  }
+}

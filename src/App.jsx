@@ -11,6 +11,7 @@ import ConsultationPage from './pages/ConsultationPage'
 import AdminPage from './pages/AdminPage'
 import AuthPage from './pages/AuthPage'
 import PatientDashboard from './pages/PatientDashboard'
+import WeightLossPage from './pages/WeightLossPage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -35,6 +36,7 @@ function Layout() {
           <Route path="/admin"                element={<AdminPage />} />
           <Route path="/auth"                 element={<AuthPage />} />
           <Route path="/dashboard"            element={<PatientDashboard />} />
+          <Route path="/weight-loss"          element={<WeightLossPage />} />
           <Route path="*"                     element={<HomePage />} />
         </Routes>
       </main>

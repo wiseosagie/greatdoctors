@@ -321,6 +321,7 @@ function SubmissionDrawer({ sub, onClose }) {
 
 export default function AdminPage() {
   const [adminUser, setAdminUser] = useState(null)
+  const [sessionChecked, setSessionChecked] = useState(false)
   const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -330,6 +331,16 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+
+  // Restore session on page load/refresh
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email === ADMIN_EMAIL) {
+        setAdminUser(session.user)
+      }
+      setSessionChecked(true)
+    })
+  }, [])
 
   useEffect(() => {
     if (!adminUser) return
@@ -364,6 +375,7 @@ export default function AdminPage() {
     }
   }
 
+  if (!sessionChecked) return null
   if (!adminUser) return <AdminLoginGate onUnlock={(user) => setAdminUser(user)} />
 
   const conditions = [...new Set(submissions.map(s => s.condition_id))]

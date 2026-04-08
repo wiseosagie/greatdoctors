@@ -348,9 +348,20 @@ export default function AdminPage() {
   const toggleReviewed = async (e, sub) => {
     e.stopPropagation()
     const newVal = !sub.reviewed
-    await supabase.from('submissions').update({ reviewed: newVal }).eq('id', sub.id)
+    // Optimistic UI update first
     setSubmissions(prev => prev.map(s => s.id === sub.id ? { ...s, reviewed: newVal } : s))
-    if (selected?.id === sub.id) setSelected(s => ({ ...s, reviewed: newVal }))
+    if (selected?.id === sub.id) setSelected(prev => ({ ...prev, reviewed: newVal }))
+    // Persist to Supabase
+    const { error: updateError } = await supabase
+      .from('submissions')
+      .update({ reviewed: newVal })
+      .eq('id', sub.id)
+    if (updateError) {
+      // Revert on failure
+      setSubmissions(prev => prev.map(s => s.id === sub.id ? { ...s, reviewed: !newVal } : s))
+      if (selected?.id === sub.id) setSelected(prev => ({ ...prev, reviewed: !newVal }))
+      alert(`Could not save: ${updateError.message}`)
+    }
   }
 
   if (!adminUser) return <AdminLoginGate onUnlock={(user) => setAdminUser(user)} />

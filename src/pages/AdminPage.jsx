@@ -212,6 +212,12 @@ function SubmissionDrawer({ sub, onClose }) {
 
         <div className="drawer__footer">
           <button
+            className={`admin__reviewed-btn admin__reviewed-btn--lg ${sub.reviewed ? 'confirmed' : ''}`}
+            onClick={(e) => toggleReviewed(e, sub)}
+          >
+            {sub.reviewed ? '✅ Mark as Pending' : '🕐 Mark as Reviewed'}
+          </button>
+          <button
             className="btn-outline"
             onClick={() => {
               const blob = new Blob([JSON.stringify(sub, null, 2)], { type: 'application/json' })
@@ -319,8 +325,11 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [reviewFilter, setReviewFilter] = useState('all') // 'all' | 'pending' | 'reviewed'
   const [selected, setSelected] = useState(null)
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   useEffect(() => {
     if (!adminUser) return
@@ -336,12 +345,21 @@ export default function AdminPage() {
       })
   }, [adminUser])
 
+  const toggleReviewed = async (e, sub) => {
+    e.stopPropagation()
+    const newVal = !sub.reviewed
+    await supabase.from('submissions').update({ reviewed: newVal }).eq('id', sub.id)
+    setSubmissions(prev => prev.map(s => s.id === sub.id ? { ...s, reviewed: newVal } : s))
+    if (selected?.id === sub.id) setSelected(s => ({ ...s, reviewed: newVal }))
+  }
+
   if (!adminUser) return <AdminLoginGate onUnlock={(user) => setAdminUser(user)} />
 
   const conditions = [...new Set(submissions.map(s => s.condition_id))]
 
   const filtered = submissions.filter(s => {
     const matchesCondition = filter === 'all' || s.condition_id === filter
+    const matchesReview = reviewFilter === 'all' || (reviewFilter === 'reviewed' ? s.reviewed : !s.reviewed)
     const pi = s.patient_info || {}
     const searchStr = search.toLowerCase()
     const matchesSearch = !search ||
@@ -350,7 +368,10 @@ export default function AdminPage() {
       `${pi.firstName || ''} ${pi.lastName || ''}`.toLowerCase().includes(searchStr) ||
       (pi.phone || '').includes(search) ||
       (pi.email || '').toLowerCase().includes(searchStr)
-    return matchesCondition && matchesSearch
+    const subDate = new Date(s.submitted_at)
+    const matchesFrom = !dateFrom || subDate >= new Date(dateFrom)
+    const matchesTo = !dateTo || subDate <= new Date(dateTo + 'T23:59:59')
+    return matchesCondition && matchesReview && matchesSearch && matchesFrom && matchesTo
   })
 
   const downloadAll = () => {
@@ -403,22 +424,39 @@ export default function AdminPage() {
 
         {/* Filters */}
         <div className="admin__filters">
-          <input
-            className="admin__search"
-            placeholder="Search submissions..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <div className="admin__filters-row">
+            <input
+              className="admin__search"
+              placeholder="Search by name, email, phone..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <div className="admin__date-range">
+              <label>From</label>
+              <input type="date" className="admin__date-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+              <label>To</label>
+              <input type="date" className="admin__date-input" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+              {(dateFrom || dateTo) && (
+                <button className="admin__date-clear" onClick={() => { setDateFrom(''); setDateTo('') }}>✕ Clear</button>
+              )}
+            </div>
+          </div>
           <div className="admin__filter-tabs">
-            <button className={`admin__filter-tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
-              All
-            </button>
+            <button className={`admin__filter-tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>All Conditions</button>
             {conditions.map(c => (
               <button key={c} className={`admin__filter-tab ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>
                 {CONDITION_LABELS[c] || c}
               </button>
             ))}
-
+          </div>
+          <div className="admin__filter-tabs">
+            {[['all', '📋 All'], ['pending', '🕐 Pending Review'], ['reviewed', '✅ Reviewed']].map(([val, label]) => (
+              <button key={val} className={`admin__filter-tab ${reviewFilter === val ? 'active' : ''}`} onClick={() => setReviewFilter(val)}>
+                {label} {val !== 'all' && <span className="admin__filter-count">
+                  {val === 'pending' ? submissions.filter(s => !s.reviewed).length : submissions.filter(s => s.reviewed).length}
+                </span>}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -454,6 +492,7 @@ export default function AdminPage() {
                   <th>Patient</th>
                   <th>Condition</th>
                   <th>Phone</th>
+                  <th>Status</th>
                   <th></th>
                 </tr>
               </thead>
@@ -464,7 +503,7 @@ export default function AdminPage() {
                   return (
                   <motion.tr
                     key={sub.id}
-                    className="admin__table-row"
+                    className={`admin__table-row ${sub.reviewed ? 'admin__table-row--reviewed' : ''}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
@@ -484,6 +523,15 @@ export default function AdminPage() {
                       </span>
                     </td>
                     <td className="admin__td-phone">{pi.phone || '—'}</td>
+                    <td>
+                      <button
+                        className={`admin__reviewed-btn ${sub.reviewed ? 'confirmed' : ''}`}
+                        onClick={(e) => toggleReviewed(e, sub)}
+                        title={sub.reviewed ? 'Mark as pending' : 'Mark as reviewed'}
+                      >
+                        {sub.reviewed ? '✅ Reviewed' : '🕐 Pending'}
+                      </button>
+                    </td>
                     <td>
                       <button className="admin__view-btn">View →</button>
                     </td>
@@ -546,22 +594,60 @@ export default function AdminPage() {
         .admin__stat-label { font-size: 0.78rem; color: var(--muted); }
 
         .admin__filters { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .admin__filters-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .admin__search {
           font-family: var(--font-sans); font-size: 0.875rem;
           padding: 11px 16px; border: 1.5px solid var(--border);
           border-radius: var(--radius-md); background: white; outline: none;
-          max-width: 360px; transition: border-color 0.2s;
+          max-width: 280px; transition: border-color 0.2s; flex: 1;
         }
         .admin__search:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(10,155,140,0.1); }
+        .admin__date-range {
+          display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        .admin__date-range label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+        .admin__date-input {
+          font-family: var(--font-sans); font-size: 0.82rem;
+          padding: 8px 12px; border: 1.5px solid var(--border);
+          border-radius: var(--radius-md); background: white; outline: none;
+          transition: border-color 0.2s; color: var(--ink);
+        }
+        .admin__date-input:focus { border-color: var(--teal); }
+        .admin__date-clear {
+          font-family: var(--font-sans); font-size: 0.78rem; font-weight: 500;
+          color: #e53e3e; background: #fff5f5; border: 1px solid #fcd5d5;
+          border-radius: 99px; padding: 5px 12px; cursor: pointer;
+          transition: all 0.15s;
+        }
+        .admin__date-clear:hover { background: #ffe4e4; }
         .admin__filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
         .admin__filter-tab {
           font-family: var(--font-sans); font-size: 0.8rem; font-weight: 500;
           padding: 6px 14px; border-radius: 99px; cursor: pointer;
           background: white; border: 1px solid var(--border); color: var(--muted);
-          transition: all 0.15s;
+          transition: all 0.15s; display: flex; align-items: center; gap: 6px;
         }
         .admin__filter-tab:hover { border-color: var(--teal); color: var(--teal); }
         .admin__filter-tab.active { background: var(--teal); border-color: var(--teal); color: white; }
+        .admin__filter-count {
+          background: rgba(255,255,255,0.25); border-radius: 99px;
+          padding: 1px 7px; font-size: 0.72rem; font-weight: 700;
+        }
+        .admin__filter-tab:not(.active) .admin__filter-count {
+          background: var(--teal-l); color: var(--teal);
+        }
+        .admin__reviewed-btn {
+          font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600;
+          padding: 5px 12px; border-radius: 99px; cursor: pointer;
+          border: 1.5px solid var(--border); background: var(--sky);
+          color: var(--muted); transition: all 0.18s; white-space: nowrap;
+        }
+        .admin__reviewed-btn:hover { border-color: var(--teal); color: var(--teal-d); background: var(--teal-l); }
+        .admin__reviewed-btn.confirmed { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .admin__reviewed-btn.confirmed:hover { background: #d1fae5; }
+        .admin__reviewed-btn--lg { font-size: 0.85rem; padding: 9px 18px; }
+        .admin__table-row--reviewed { opacity: 0.65; }
+        .admin__table-row--reviewed:hover { opacity: 1; }
 
         .admin__table-wrap {
           background: white; border: 1px solid var(--border);

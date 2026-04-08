@@ -1,11 +1,16 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 
 export default function AuthPage() {
-  const [tab, setTab]           = useState('login')   // 'login' | 'signup' | 'reset'
-  const [email, setEmail]       = useState('')
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const initialTab = params.get('mode') === 'signup' ? 'signup' : 'login'
+  const initialEmail = params.get('email') || ''
+
+  const [tab, setTab]           = useState(initialTab)
+  const [email, setEmail]       = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [loading, setLoading]   = useState(false)

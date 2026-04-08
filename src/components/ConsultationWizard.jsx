@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -206,7 +207,12 @@ function BlockerScreen({ message, onBack }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Success screen
 // ─────────────────────────────────────────────────────────────────────────────
-function SuccessScreen({ condition }) {
+function SuccessScreen({ condition, patientEmail, isLoggedIn }) {
+  const navigate = useNavigate()
+  const accountUrl = patientEmail
+    ? `/auth?email=${encodeURIComponent(patientEmail)}&mode=signup`
+    : '/auth?mode=signup'
+
   return (
     <motion.div className="success" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
       <motion.div className="success__icon" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}>
@@ -226,7 +232,36 @@ function SuccessScreen({ condition }) {
           </motion.div>
         ))}
       </div>
-      <a href="/" className="btn-primary" style={{ marginTop: 24 }}>Back to Home</a>
+
+      {isLoggedIn ? (
+        <motion.div className="success__actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+          <button className="btn-primary" onClick={() => navigate('/dashboard')}>
+            View My Visits
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
+            </svg>
+          </button>
+          <a href="/" className="btn-outline">Back to Home</a>
+        </motion.div>
+      ) : (
+        <motion.div className="success__account-prompt" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+          <div className="success__account-prompt__inner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div>
+              <p className="success__account-prompt__title">Save your info for next time</p>
+              <p className="success__account-prompt__sub">Create a free account to skip re-entering your details on future visits.</p>
+            </div>
+          </div>
+          <div className="success__account-prompt__actions">
+            <button className="btn-primary success__account-btn" onClick={() => navigate(accountUrl)}>
+              Create Free Account
+            </button>
+            <a href="/" className="success__account-skip">No thanks</a>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   )
 }
@@ -382,7 +417,7 @@ export default function ConsultationWizard({ condition, onSubmit }) {
     }
   }
 
-  if (submitted) return <SuccessScreen condition={condition} />
+  if (submitted) return <SuccessScreen condition={condition} patientEmail={answers?.email || ''} isLoggedIn={!!user} />
   if (blocker) return <BlockerScreen message={blocker} onBack={() => setBlocker(null)} />
 
   const variants = {
@@ -429,6 +464,21 @@ export default function ConsultationWizard({ condition, onSubmit }) {
               <h2 className="wizard__step-title">{currentStep.title}</h2>
             </div>
           </div>
+
+          {currentStep.id === 'patient_info' && !user && (
+            <motion.div
+              className="wizard__login-nudge"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Already have an account?</span>
+              <a href="/auth" className="wizard__login-nudge__link">Log in to skip this step</a>
+            </motion.div>
+          )}
 
           <div className="wizard__questions">
             {currentStep.questions.map((q) => {
@@ -781,6 +831,28 @@ export default function ConsultationWizard({ condition, onSubmit }) {
         .blocker__msg { font-size: 1rem; color: #742a2a; line-height: 1.7; max-width: 480px; }
         .blocker__sub { font-size: 0.85rem; color: #9b2c2c; }
 
+        /* Login nudge */
+        .wizard__login-nudge {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: var(--teal-l);
+          border: 1px solid var(--teal);
+          border-radius: var(--radius-md);
+          font-size: 0.83rem;
+          color: var(--teal-d);
+          margin-bottom: 8px;
+        }
+        .wizard__login-nudge svg { flex-shrink: 0; color: var(--teal); }
+        .wizard__login-nudge__link {
+          font-weight: 700;
+          color: var(--teal-d);
+          text-decoration: underline;
+          white-space: nowrap;
+        }
+        .wizard__login-nudge__link:hover { color: var(--navy); }
+
         /* Success */
         .success {
           display: flex; flex-direction: column; align-items: center;
@@ -812,6 +884,37 @@ export default function ConsultationWizard({ condition, onSubmit }) {
           display: flex; align-items: center; justify-content: center;
           flex-shrink: 0;
         }
+        .success__actions {
+          display: flex; gap: 12px; flex-wrap: wrap;
+          justify-content: center; margin-top: 8px;
+        }
+        .success__account-prompt {
+          width: 100%; max-width: 440px;
+          background: var(--teal-l);
+          border: 1.5px solid var(--teal);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          margin-top: 8px;
+          text-align: left;
+        }
+        .success__account-prompt__inner {
+          display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px;
+        }
+        .success__account-prompt__inner svg { flex-shrink: 0; margin-top: 2px; }
+        .success__account-prompt__title {
+          font-size: 0.95rem; font-weight: 700; color: var(--navy); margin: 0 0 4px;
+        }
+        .success__account-prompt__sub {
+          font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0;
+        }
+        .success__account-prompt__actions {
+          display: flex; align-items: center; gap: 16px;
+        }
+        .success__account-btn { font-size: 0.85rem; padding: 10px 20px; }
+        .success__account-skip {
+          font-size: 0.82rem; color: var(--muted); text-decoration: underline;
+        }
+        .success__account-skip:hover { color: var(--navy); }
 
         @media (max-width: 600px) {
           .q-options--grid { grid-template-columns: 1fr; }

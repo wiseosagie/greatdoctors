@@ -246,26 +246,29 @@ export default function Services() {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 18px;
+          padding: 11px 20px;
           border-radius: 100px;
-          font-size: 0.85rem;
-          font-weight: 500;
-          background: var(--surface);
-          color: var(--text-secondary);
-          border: 1.5px solid transparent;
-          transition: var(--transition);
-          cursor: pointer;
-        }
-        .services__tab:hover {
+          font-size: 0.875rem;
+          font-weight: 700;
           background: var(--off-white);
           color: var(--navy);
-          border-color: var(--border);
+          border: 2px solid var(--border);
+          transition: var(--transition);
+          cursor: pointer;
+          letter-spacing: 0.01em;
         }
-        .services__tab.active {
+        .services__tab:hover {
           background: white;
           color: var(--tab-color);
           border-color: var(--tab-color);
-          box-shadow: 0 2px 12px rgba(10,36,99,0.08);
+          box-shadow: 0 2px 12px rgba(10,36,99,0.1);
+          transform: translateY(-1px);
+        }
+        .services__tab.active {
+          background: var(--tab-color);
+          color: white;
+          border-color: var(--tab-color);
+          box-shadow: 0 4px 16px rgba(10,36,99,0.2);
         }
         .services__tab-icon {
           color: currentColor;

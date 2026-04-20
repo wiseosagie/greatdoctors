@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import PaymentStep from './PaymentStep'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Individual question renderers
@@ -306,6 +307,8 @@ export default function ConsultationWizard({ condition, onSubmit }) {
   const [errors, setErrors] = useState({})
   const [direction, setDirection] = useState(1)
   const [hasProfile, setHasProfile] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
+  const [paymentIntentId, setPaymentIntentId] = useState(null)
   const topRef = useRef(null)
 
   // Pre-fill patient info from last submission and skip the step if found
@@ -375,7 +378,8 @@ export default function ConsultationWizard({ condition, onSubmit }) {
       setStepIdx(i => i + 1)
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } else {
-      handleSubmit()
+      setShowPayment(true)
+      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
@@ -404,11 +408,14 @@ export default function ConsultationWizard({ condition, onSubmit }) {
 
       await supabase.from('submissions').insert({
         id,
-        user_id:      user?.id || null,
-        condition:    condition.name,
-        condition_id: condition.id,
-        patient_info: patientInfo,
+        user_id:           user?.id || null,
+        condition:         condition.name,
+        condition_id:      condition.id,
+        patient_info:      patientInfo,
         answers,
+        payment_intent_id: paymentIntentId || null,
+        payment_status:    paymentIntentId ? 'paid' : 'pending',
+        amount_paid:       condition.price || null,
       })
 
     } finally {
@@ -419,6 +426,18 @@ export default function ConsultationWizard({ condition, onSubmit }) {
 
   if (submitted) return <SuccessScreen condition={condition} patientEmail={answers?.email || ''} isLoggedIn={!!user} />
   if (blocker) return <BlockerScreen message={blocker} onBack={() => setBlocker(null)} />
+  const priceInCents = condition.price
+    ? Math.round(parseFloat(condition.price.replace(/[^0-9.]/g, '')) * 100)
+    : 4999
+
+  if (showPayment) return (
+    <PaymentStep
+      condition={condition}
+      amount={priceInCents}
+      onSuccess={(intentId) => { setPaymentIntentId(intentId); setShowPayment(false); handleSubmit() }}
+      onBack={() => setShowPayment(false)}
+    />
+  )
 
   const variants = {
     enter: (dir) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),

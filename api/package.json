@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Azure Functions API for Great Doctors USA",
   "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
+    "@supabase/supabase-js": "^2.0.0",
+    "stripe": "^22.0.2"
   }
 }

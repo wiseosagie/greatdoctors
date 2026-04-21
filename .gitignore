@@ -4,7 +4,7 @@ dist
 .env
 .env.local
 .netlify
-*.mp4
+
 submissions/
 Gold Medical Service Telehealth Questions.txt
 RHM SERVES TELE QUESTIONS.docx

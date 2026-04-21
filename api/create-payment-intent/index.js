@@ -17,11 +17,11 @@ const CONDITION_PRICES = {
   hypertension: 4999,
   insomnia:     4999,
   birthcontrol: 3999,
-  weightloss:   14999, // Month 1 GLP-1 default
+  weightloss:   14999,
+  booking:      100,
 }
 
 module.exports = async function (context, req) {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     context.res = {
       status: 200,
@@ -36,7 +36,7 @@ module.exports = async function (context, req) {
   }
 
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
-  const { conditionId, conditionName, amount, email } = req.body || {}
+  const { conditionId, conditionName, amount, patientName, successUrl, cancelUrl } = req.body || {}
 
   if (!conditionId) {
     context.res = {
@@ -50,22 +50,27 @@ module.exports = async function (context, req) {
   const chargeAmount = amount || CONDITION_PRICES[conditionId] || 4999
 
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: chargeAmount,
-      currency: 'usd',
-      payment_method_types: ['card'],
-      description: `Great Doctors USA — ${conditionName || conditionId}`,
-      receipt_email: email || undefined,
-      metadata: { conditionId, conditionName: conditionName || conditionId },
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          unit_amount: chargeAmount,
+          product_data: {
+            name: conditionName || 'Medical Consultation',
+            description: patientName ? `Patient: ${patientName}` : 'Great Doctors USA',
+          },
+        },
+        quantity: 1,
+      }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     })
 
     context.res = {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ clientSecret: paymentIntent.client_secret }),
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ url: session.url }),
     }
   } catch (err) {
     context.res = {

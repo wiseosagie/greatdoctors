@@ -1386,6 +1386,27 @@ export const QUESTIONS = {
       { id: 'terms', title: 'Almost Done', icon: '✅', questions: [Q_TERMS] },
     ],
   },
+
+  // ── Booking ───────────────────────────────────────────────────────────────
+  booking: {
+    id: 'booking',
+    name: 'General Booking',
+    icon: '📅',
+    price: '$1.00',
+    color: '#6366f1',
+    intro: 'Quick $1 booking to connect you with one of our doctors.',
+    steps: [
+      {
+        id: 'info',
+        title: 'Your Name',
+        icon: '👤',
+        questions: [
+          { id: 'name', type: 'text', label: 'Full Name', placeholder: 'Jane Smith', required: true },
+        ],
+      },
+      { id: 'terms', title: 'Almost Done', icon: '✅', questions: [Q_TERMS] },
+    ],
+  },
 }
 
 // Map service IDs from Services.jsx to question keys
@@ -1436,4 +1457,5 @@ export const SERVICE_TO_QUESTION_MAP = {
   'Heartburn': 'gerd',
   'Thyroid Management': 'thyroid',
   'Thyroid Disorders': 'thyroid',
+  'General Booking': 'booking',
 }

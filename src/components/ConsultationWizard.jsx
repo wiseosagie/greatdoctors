@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -206,82 +206,80 @@ function BlockerScreen({ message, onBack }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Success screen
+// Success screen (moved to ConsultationSuccessPage)
 // ─────────────────────────────────────────────────────────────────────────────
-function SuccessScreen({ condition, patientEmail, isLoggedIn }) {
-  const navigate = useNavigate()
-  const accountUrl = patientEmail
-    ? `/auth?email=${encodeURIComponent(patientEmail)}&mode=signup`
-    : '/auth?mode=signup'
+// function SuccessScreen({ condition, patientEmail, isLoggedIn }) {
+//   const navigate = useNavigate()
+//   const accountUrl = patientEmail
+//     ? `/auth?email=${encodeURIComponent(patientEmail)}&mode=signup`
+//     : '/auth?mode=signup'
 
-  return (
-    <motion.div className="success" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+//   return (
+//     <motion.div className="success" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
 
-      {/* Icon + heading */}
-      <motion.div className="success__icon" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-      </motion.div>
+//       {/* Icon + heading */}
+//       <motion.div className="success__icon" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}>
+//         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+//           <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+//         </svg>
+//       </motion.div>
 
-      <h2 className="success__title">You're all set!</h2>
-      <p className="success__sub">
-        Your consultation has been received and payment confirmed.
-      </p>
-      <p className="success__sub">
-        One of our doctors will personally review your case and send your treatment plan within <strong>2 to 4 hours</strong> during business hours.
-      </p>
+//       <h2 className="success__title">You're all set!</h2>
+//       <p className="success__sub">Your consultation has been received and payment confirmed.</p>
+//       <p className="success__sub">
+//         One of our doctors will personally review your case and send your treatment plan within <strong>2 to 4 hours</strong> during business hours.
+//       </p>
 
-      {/* What happens next */}
-      <div className="success__steps">
-        {[
-          { icon: '🔒', text: 'Your responses are encrypted and stored securely' },
-          { icon: '👨‍⚕️', text: 'One of our doctors reviews your case and prepares your treatment plan' },
-          { icon: '💊', text: 'Your prescription is sent directly to your pharmacy' },
-          { icon: '✅', text: 'Pick up your medication — same day in most cases' },
-        ].map((s, i) => (
-          <motion.div key={s.text} className="success__step" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }}>
-            <span className="success__step-emoji">{s.icon}</span>
-            <span>{s.text}</span>
-          </motion.div>
-        ))}
-      </div>
+//       {/* What happens next */}
+//       <div className="success__steps">
+//         {[
+//           { icon: '🔒', text: 'Your responses are encrypted and stored securely' },
+//           { icon: '👨‍⚕️', text: 'One of our doctors reviews your case personally' },
+//           { icon: '💊', text: 'Your treatment plan is sent within 2 to 4 hours' },
+//           { icon: '✅', text: 'Pick up your medication — same day in most cases' },
+//         ].map((s, i) => (
+//           <motion.div key={s.text} className="success__step" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }}>
+//             <span className="success__step-emoji">{s.icon}</span>
+//             <span>{s.text}</span>
+//           </motion.div>
+//         ))}
+//       </div>
 
-      {/* CTA */}
-      {isLoggedIn ? (
-        <motion.div className="success__actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
-          <button className="btn-primary" onClick={() => navigate('/dashboard')}>
-            View My Visits
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
-            </svg>
-          </button>
-          <a href="/" className="btn-outline">Back to Home</a>
-        </motion.div>
-      ) : (
-        <motion.div className="success__account-prompt" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
-          <div className="success__account-prompt__inner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-            <div>
-              <p className="success__account-prompt__title">Skip the form on your next visit</p>
-              <p className="success__account-prompt__sub">Create a free account and your personal details will be saved — no re-entering next time.</p>
-            </div>
-          </div>
-          <div className="success__account-prompt__actions">
-            <button className="btn-primary success__account-btn" onClick={() => navigate(accountUrl)}>
-              Create Free Account
-            </button>
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <a href="/" className="success__account-skip">Return to Home</a>
-          </div>
-        </motion.div>
-      )}
-    </motion.div>
-  )
-}
+//       {/* CTA */}
+//       {isLoggedIn ? (
+//         <motion.div className="success__actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+//           <button className="btn-primary" onClick={() => navigate('/dashboard')}>
+//             View My Visits
+//             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+//               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/>
+//             </svg>
+//           </button>
+//           <a href="/" className="btn-outline">Back to Home</a>
+//         </motion.div>
+//       ) : (
+//         <motion.div className="success__account-prompt" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+//           <div className="success__account-prompt__inner">
+//             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+//               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+//             </svg>
+//             <div>
+//               <p className="success__account-prompt__title">Skip the form on your next visit</p>
+//               <p className="success__account-prompt__sub">Create a free account and your personal details will be saved — no re-entering next time.</p>
+//             </div>
+//           </div>
+//           <div className="success__account-prompt__actions">
+//             <button className="btn-primary success__account-btn" onClick={() => navigate(accountUrl)}>
+//               Create Free Account
+//             </button>
+//           </div>
+//           <div style={{ marginTop: 12 }}>
+//             <a href="/" className="success__account-skip">Return to Home</a>
+//           </div>
+//         </motion.div>
+//       )}
+//     </motion.div>
+//   )
+// }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Question renderer dispatcher
@@ -318,13 +316,10 @@ export default function ConsultationWizard({ condition, onSubmit }) {
   const [stepIdx, setStepIdx] = useState(0)
   const [answers, setAnswers] = useState({})
   const [blocker, setBlocker] = useState(null)
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const [direction, setDirection] = useState(1)
   const [hasProfile, setHasProfile] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
-  const [paymentIntentId, setPaymentIntentId] = useState(null)
   const topRef = useRef(null)
 
   // Pre-fill patient info from last submission and skip the step if found
@@ -408,49 +403,22 @@ export default function ConsultationWizard({ condition, onSubmit }) {
     }
   }
 
-  const handleSubmit = async () => {
-    setSubmitting(true)
-    try {
-      const id = `${condition.id}-${Date.now()}`
-
-      const patientInfo = {
-        firstName: answers?.first_name || '',
-        lastName:  answers?.last_name  || '',
-        phone:     answers?.phone      || '',
-        email:     answers?.email      || '',
-        dob:       answers?.dob        || '',
-        gender:    answers?.gender     || '',
-      }
-
-      await supabase.from('submissions').insert({
-        id,
-        user_id:           user?.id || null,
-        condition:         condition.name,
-        condition_id:      condition.id,
-        patient_info:      patientInfo,
-        answers,
-        payment_intent_id: paymentIntentId || null,
-        payment_status:    paymentIntentId ? 'paid' : 'pending',
-        amount_paid:       condition.price || null,
-      })
-
-    } finally {
-      setSubmitting(false)
-      setSubmitted(true)
-    }
-  }
-
-  if (submitted) return <SuccessScreen condition={condition} patientEmail={answers?.email || ''} isLoggedIn={!!user} />
   if (blocker) return <BlockerScreen message={blocker} onBack={() => setBlocker(null)} />
   const priceInCents = condition.price
     ? Math.round(parseFloat(condition.price.replace(/[^0-9.]/g, '')) * 100)
     : 4999
 
+  const patientName = answers.name
+    || [answers.first_name, answers.last_name].filter(Boolean).join(' ')
+    || ''
+
   if (showPayment) return (
     <PaymentStep
       condition={condition}
       amount={priceInCents}
-      onSuccess={(intentId) => { setPaymentIntentId(intentId); setShowPayment(false); handleSubmit() }}
+      patientName={patientName}
+      answers={answers}
+      userId={user?.id || null}
       onBack={() => setShowPayment(false)}
     />
   )
@@ -560,12 +528,9 @@ export default function ConsultationWizard({ condition, onSubmit }) {
         <button
           className="btn-primary wizard__next"
           onClick={handleNext}
-          disabled={submitting}
         >
-          {submitting ? (
-            <span className="wizard__spinner" />
-          ) : stepIdx === steps.length - 1 ? (
-            <>Submit Consultation <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></>
+          {stepIdx === steps.length - 1 ? (
+            <>Continue to Payment <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></>
           ) : (
             <>Continue <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg></>
           )}
@@ -890,66 +855,70 @@ export default function ConsultationWizard({ condition, onSubmit }) {
 
         /* Success */
         .success {
-          display: flex; flex-direction: column; align-items: center;
-          text-align: center; gap: 16px; padding: 48px 24px;
+          max-width: 420px;
+          margin: 0 auto;
+          padding: 2rem 1.5rem;
+          text-align: center;
         }
         .success__icon {
-          width: 80px; height: 80px;
-          background: var(--teal-l);
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 1.25rem;
         }
         .success__title {
-          font-family: var(--font-serif);
-          font-size: 2rem; color: var(--navy); font-weight: 400;
+          font-size: 22px;
+          font-weight: 500;
+          margin: 0 0 8px;
         }
-        .success__sub { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 460px; margin-bottom: 8px; }
+        .success__sub {
+          font-size: 16px;
+          line-height: 1.7;
+          color: var(--text-muted);
+          margin: 0 0 8px;
+        }
+        .success__sub strong { font-weight: 500; color: var(--text); }
         .success__steps {
-          display: flex; flex-direction: column; gap: 12px;
-          width: 100%; max-width: 400px; margin-top: 8px; text-align: left;
+          border: 0.5px solid var(--border);
+          border-radius: 8px;
+          overflow: hidden;
+          margin: 1.25rem 0 1.5rem;
+          text-align: left;
         }
         .success__step {
-          display: flex; align-items: center; gap: 14px;
-          font-size: 0.875rem; color: var(--text-secondary);
-          background: var(--off-white);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-md);
-          padding: 12px 16px;
-          line-height: 1.5;
+          display: flex; align-items: center; gap: 12px;
+          padding: 12px 14px;
+          font-size: 16px; line-height: 1.7;
+          color: var(--text-muted);
+          border-bottom: 0.5px solid var(--border);
         }
-        .success__step-emoji {
-          font-size: 1.2rem;
-          flex-shrink: 0;
-        }
+        .success__step:last-child { border-bottom: none; }
+        .success__step-emoji { font-size: 18px; flex-shrink: 0; }
         .success__actions {
           display: flex; gap: 12px; flex-wrap: wrap;
           justify-content: center; margin-top: 8px;
         }
         .success__account-prompt {
-          width: 100%; max-width: 440px;
-          background: var(--teal-l);
-          border: 1.5px solid var(--teal);
-          border-radius: var(--radius-lg);
-          padding: 24px;
-          margin-top: 8px;
+          background: var(--surface);
+          border-radius: 8px;
+          padding: 14px 16px;
           text-align: left;
         }
         .success__account-prompt__inner {
-          display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px;
+          display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;
         }
-        .success__account-prompt__inner svg { flex-shrink: 0; margin-top: 2px; }
         .success__account-prompt__title {
-          font-size: 0.95rem; font-weight: 700; color: var(--navy); margin: 0 0 4px;
+          margin: 0 0 4px; font-size: 16px; font-weight: 500; color: var(--text);
         }
         .success__account-prompt__sub {
-          font-size: 0.83rem; color: var(--muted); line-height: 1.55; margin: 0;
+          margin: 0; font-size: 16px; line-height: 1.7; color: var(--text-muted);
         }
-        .success__account-prompt__actions {
-          display: flex; align-items: center; gap: 16px;
+        .success__account-prompt__actions { margin-top: 10px; }
+        .success__account-btn {
+          display: block; width: 100%; box-sizing: border-box; text-align: center;
         }
-        .success__account-btn { font-size: 0.85rem; padding: 10px 20px; }
         .success__account-skip {
-          font-size: 0.82rem; color: var(--muted); text-decoration: underline;
+          display: inline-block; font-size: 16px; color: var(--text-muted);
+          text-decoration: none; border-bottom: 0.5px solid var(--border);
         }
         .success__account-skip:hover { color: var(--navy); }
 

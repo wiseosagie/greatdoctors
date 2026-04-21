@@ -216,24 +216,38 @@ function SuccessScreen({ condition, patientEmail, isLoggedIn }) {
 
   return (
     <motion.div className="success" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+
+      {/* Icon + heading */}
       <motion.div className="success__icon" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
         </svg>
       </motion.div>
-      <h2 className="success__title">Consultation Submitted!</h2>
+
+      <h2 className="success__title">You're all set!</h2>
       <p className="success__sub">
-        Dr. Evbu Osunde will personally review your responses. During business hours, expect your treatment plan within <strong>2–4 hours</strong>.
+        Your consultation has been received and payment confirmed.
       </p>
+      <p className="success__sub">
+        One of our doctors will personally review your case and send your treatment plan within <strong>2 to 4 hours</strong> during business hours.
+      </p>
+
+      {/* What happens next */}
       <div className="success__steps">
-        {['Your responses are encrypted & stored securely', 'Dr. Osunde reviews your case', 'Prescription sent to your pharmacy', 'Pick up same day'].map((s, i) => (
-          <motion.div key={s} className="success__step" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }}>
-            <span className="success__step-num">{i + 1}</span>
-            <span>{s}</span>
+        {[
+          { icon: '🔒', text: 'Your responses are encrypted and stored securely' },
+          { icon: '👨‍⚕️', text: 'One of our doctors reviews your case and prepares your treatment plan' },
+          { icon: '💊', text: 'Your prescription is sent directly to your pharmacy' },
+          { icon: '✅', text: 'Pick up your medication — same day in most cases' },
+        ].map((s, i) => (
+          <motion.div key={s.text} className="success__step" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }}>
+            <span className="success__step-emoji">{s.icon}</span>
+            <span>{s.text}</span>
           </motion.div>
         ))}
       </div>
 
+      {/* CTA */}
       {isLoggedIn ? (
         <motion.div className="success__actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
           <button className="btn-primary" onClick={() => navigate('/dashboard')}>
@@ -247,19 +261,21 @@ function SuccessScreen({ condition, patientEmail, isLoggedIn }) {
       ) : (
         <motion.div className="success__account-prompt" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
           <div className="success__account-prompt__inner">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
             <div>
-              <p className="success__account-prompt__title">Save your info for next time</p>
-              <p className="success__account-prompt__sub">Create a free account to skip re-entering your details on future visits.</p>
+              <p className="success__account-prompt__title">Skip the form on your next visit</p>
+              <p className="success__account-prompt__sub">Create a free account and your personal details will be saved — no re-entering next time.</p>
             </div>
           </div>
           <div className="success__account-prompt__actions">
             <button className="btn-primary success__account-btn" onClick={() => navigate(accountUrl)}>
               Create Free Account
             </button>
-            <a href="/" className="success__account-skip">No thanks</a>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <a href="/" className="success__account-skip">Return to Home</a>
           </div>
         </motion.div>
       )}
@@ -887,20 +903,22 @@ export default function ConsultationWizard({ condition, onSubmit }) {
           font-family: var(--font-serif);
           font-size: 2rem; color: var(--navy); font-weight: 400;
         }
-        .success__sub { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 460px; }
+        .success__sub { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 460px; margin-bottom: 8px; }
         .success__steps {
           display: flex; flex-direction: column; gap: 12px;
           width: 100%; max-width: 400px; margin-top: 8px; text-align: left;
         }
         .success__step {
-          display: flex; align-items: center; gap: 12px;
-          font-size: 0.875rem; color: var(--muted);
+          display: flex; align-items: center; gap: 14px;
+          font-size: 0.875rem; color: var(--text-secondary);
+          background: var(--off-white);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 12px 16px;
+          line-height: 1.5;
         }
-        .success__step-num {
-          width: 26px; height: 26px; border-radius: 50%;
-          background: var(--teal); color: white;
-          font-size: 0.72rem; font-weight: 700;
-          display: flex; align-items: center; justify-content: center;
+        .success__step-emoji {
+          font-size: 1.2rem;
           flex-shrink: 0;
         }
         .success__actions {

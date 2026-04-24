@@ -1,4 +1,14 @@
-const { sendMail } = require('../shared/mailer')
+const nodemailer = require('nodemailer')
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'mail.privateemail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+})
 
 module.exports = async function (context, req) {
   context.res = {
@@ -30,7 +40,9 @@ module.exports = async function (context, req) {
       return
     }
 
-    await sendMail({
+    await transporter.sendMail({
+      from: `"Great Doctors USA" <${process.env.SMTP_USER}>`,
+      to: process.env.INTAKE_EMAIL,
       subject: `Contact Form — ${name}`,
       html: `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#fff;border:1px solid #e9ecef;border-radius:8px;overflow:hidden;">

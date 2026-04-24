@@ -1,10 +1,20 @@
 const { createClient } = require('@supabase/supabase-js')
-const { sendMail } = require('../shared/mailer')
+const nodemailer = require('nodemailer')
 
-const supabase = createClient(
+const supabaseClient = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'mail.privateemail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+})
 
 module.exports = async function (context, req) {
   context.res = {
@@ -53,13 +63,15 @@ module.exports = async function (context, req) {
     if (paymentStatus)  record.payment_status     = paymentStatus
     if (amountPaid)     record.amount_paid        = amountPaid
 
-    const { error } = await supabase.from('submissions').insert(record)
+    const { error } = await supabaseClient.from('submissions').insert(record)
 
     if (error) throw error
 
     // Send intake notification email — awaited so Azure doesn't kill it before it finishes
     try {
-      await sendMail({
+      await transporter.sendMail({
+        from: `"Great Doctors USA" <${process.env.SMTP_USER}>`,
+        to: process.env.INTAKE_EMAIL,
         subject: `New Patient Intake — ${condition} — ${patientInfo.firstName} ${patientInfo.lastName}`,
         html: buildIntakeEmail({ id, condition, patientInfo, answers }),
       })

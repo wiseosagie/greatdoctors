@@ -42,11 +42,16 @@ export default function ConsultationSuccessPage() {
         paymentStatus:   'paid',
         amountPaid:      amount ? `$${(amount / 100).toFixed(2)}` : null,
       }),
-    }).then(() => {
+    }).then(async res => {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        console.error('[log-submission] API error', res.status, err)
+      }
       localStorage.removeItem('gd_pending_submission')
       setStatus('success')
-    }).catch(() => {
-      setStatus('success') // show success even if API call fails
+    }).catch(err => {
+      console.error('[log-submission] Network error', err)
+      setStatus('success')
     })
   }, [sessionId])
 

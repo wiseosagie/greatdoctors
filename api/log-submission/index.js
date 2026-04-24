@@ -57,11 +57,15 @@ module.exports = async function (context, req) {
 
     if (error) throw error
 
-    // Send intake notification email (non-blocking — don't fail submission if email fails)
-    sendMail({
-      subject: `New Patient Intake — ${condition} — ${patientInfo.firstName} ${patientInfo.lastName}`,
-      html: buildIntakeEmail({ id, condition, patientInfo, answers }),
-    }).catch(err => context.log.error('Email send failed:', err))
+    // Send intake notification email — awaited so Azure doesn't kill it before it finishes
+    try {
+      await sendMail({
+        subject: `New Patient Intake — ${condition} — ${patientInfo.firstName} ${patientInfo.lastName}`,
+        html: buildIntakeEmail({ id, condition, patientInfo, answers }),
+      })
+    } catch (err) {
+      context.log.error('Email send failed:', err)
+    }
 
     context.res.status = 200
     context.res.body = JSON.stringify({

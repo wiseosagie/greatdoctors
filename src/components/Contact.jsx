@@ -61,10 +61,29 @@ export default function Contact() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
   const [sent, setSent] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSent(true)
+    setSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Something went wrong.')
+      }
+      setSent(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -197,8 +216,11 @@ export default function Contact() {
                   required
                 />
               </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '15px' }}>
-                Send Message
+              {error && (
+                <p style={{ color: '#c0392b', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>{error}</p>
+              )}
+              <button type="submit" className="btn-primary" disabled={submitting} style={{ width: '100%', justifyContent: 'center', padding: '15px', opacity: submitting ? 0.7 : 1 }}>
+                {submitting ? 'Sending…' : 'Send Message'}
               </button>
               <p className="contact__privacy">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

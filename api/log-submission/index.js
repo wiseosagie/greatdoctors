@@ -28,11 +28,11 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const { condition, conditionId, answers, userId } = req.body
+    const { condition, conditionId, answers, userId, paymentIntentId, paymentStatus, amountPaid } = req.body
     const id = `${conditionId}-${Date.now()}`
 
     const patientInfo = {
-      firstName: answers?.first_name || '',
+      firstName: answers?.first_name || answers?.name || '',
       lastName:  answers?.last_name  || '',
       phone:     answers?.phone      || '',
       email:     answers?.email      || '',
@@ -40,14 +40,20 @@ module.exports = async function (context, req) {
       gender:    answers?.gender     || '',
     }
 
-    const { error } = await supabase.from('submissions').insert({
+    const record = {
       id,
       user_id:      userId || null,
       condition,
       condition_id: conditionId,
       patient_info: patientInfo,
       answers,
-    })
+    }
+
+    if (paymentIntentId) record.payment_intent_id = paymentIntentId
+    if (paymentStatus)  record.payment_status     = paymentStatus
+    if (amountPaid)     record.amount_paid        = amountPaid
+
+    const { error } = await supabase.from('submissions').insert(record)
 
     if (error) throw error
 

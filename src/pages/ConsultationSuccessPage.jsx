@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
 
 export default function ConsultationSuccessPage() {
   const [searchParams] = useSearchParams()
@@ -31,21 +30,23 @@ export default function ConsultationSuccessPage() {
       gender:    answers?.gender     || '',
     }
 
-    supabase.from('submissions').insert({
-      id: `${conditionId}-${Date.now()}`,
-      user_id:           user?.id || pending.userId || null,
-      condition:         conditionName,
-      condition_id:      conditionId,
-      patient_info:      patientInfo,
-      answers,
-      payment_intent_id: sessionId,
-      payment_status:    'paid',
-      amount_paid:       amount ? `$${(amount / 100).toFixed(2)}` : null,
+    fetch('/api/log-submission', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        condition:       conditionName,
+        conditionId,
+        answers,
+        userId:          user?.id || pending.userId || null,
+        paymentIntentId: sessionId,
+        paymentStatus:   'paid',
+        amountPaid:      amount ? `$${(amount / 100).toFixed(2)}` : null,
+      }),
     }).then(() => {
       localStorage.removeItem('gd_pending_submission')
       setStatus('success')
     }).catch(() => {
-      setStatus('success') // show success even if DB write fails
+      setStatus('success') // show success even if API call fails
     })
   }, [sessionId])
 

@@ -59,10 +59,10 @@ export default function ConsultationPage() {
 
           {/* Doctor card */}
           <div className="consult-page__doctor">
-            <div className="consult-page__doctor-avatar">EO</div>
+            <div className="consult-page__doctor-avatar">GD</div>
             <div>
-              <p className="consult-page__doctor-name">Dr. Evbu Osunde, MD</p>
-              <p className="consult-page__doctor-role">Board-Certified Physician</p>
+              <p className="consult-page__doctor-name">Our Doctors</p>
+              <p className="consult-page__doctor-role">Board-Certified Physicians</p>
               <span className="consult-page__doctor-status">
                 <span className="consult-page__online-dot" /> Reviewing patients
               </span>

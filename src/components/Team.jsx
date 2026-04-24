@@ -21,10 +21,10 @@ export default function Team() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          <span className="section-label">Our Physician</span>
-          <h2 className="section-title">The doctor behind<br />your care</h2>
+          <span className="section-label">Our Physicians</span>
+          <h2 className="section-title">The doctors behind<br />your care</h2>
           <p className="section-subtitle" style={{ marginTop: 16 }}>
-            Every patient is personally reviewed by Dr. Evbu Osunde — a licensed, board-certified physician
+            Every patient is personally reviewed by our doctors — licensed, board-certified physicians
             based in Texas. Available nights and weekends.
           </p>
         </motion.div>
@@ -49,7 +49,7 @@ export default function Team() {
           ))}
         </div>
 
-        {/* Dr. Evbu Osunde — featured card */}
+        {/* Our doctors — featured card */}
         <motion.div
           className="doctor-feature"
           initial={{ opacity: 0, y: 40 }}
@@ -58,7 +58,7 @@ export default function Team() {
         >
           <div className="doctor-feature__img-wrap">
             <div className="doctor-feature__img-bg" />
-            <div className="doctor-feature__initials">EO</div>
+            <div className="doctor-feature__initials">GD</div>
             <div className="doctor-feature__badge">
               <span className="doctor-feature__badge-dot" />
               Accepting Patients
@@ -67,18 +67,18 @@ export default function Team() {
 
           <div className="doctor-feature__body">
             <span className="section-label" style={{ marginBottom: 12 }}>Lead Physician</span>
-            <h3 className="doctor-feature__name">Dr. Evbu Osunde, MD</h3>
-            <p className="doctor-feature__role">Board-Certified Physician · Arlington & Dallas, TX</p>
+            <h3 className="doctor-feature__name">Our Doctors</h3>
+            <p className="doctor-feature__role">Board-Certified Physicians · Arlington & Dallas, TX</p>
 
             <p className="doctor-feature__bio">
-              Dr. Evbu Osunde is a board-certified physician dedicated to making quality healthcare accessible
+              Our doctors are board-certified physicians dedicated to making quality healthcare accessible
               to everyone in the DFW area. With a commitment to evidence-based medicine and compassionate
-              care, Dr. Osunde reviews each patient's case personally — ensuring you receive a treatment
+              care, each patient's case is personally reviewed — ensuring you receive a treatment
               plan that's right for you.
             </p>
 
             <p className="doctor-feature__bio" style={{ marginTop: 14 }}>
-              Specializing in sexual health, urgent care, and general telemedicine, Dr. Osunde believes that
+              Specializing in sexual health, urgent care, and general telemedicine, our team believes that
               cost and convenience should never be a barrier to getting the care you need.
             </p>
 
@@ -89,7 +89,7 @@ export default function Team() {
             </div>
 
             <a href="/contact" className="btn-primary" style={{ marginTop: 24, alignSelf: 'flex-start' }}>
-              Start a Visit with Dr. Osunde
+              Start a Visit with Our Doctors
             </a>
           </div>
         </motion.div>

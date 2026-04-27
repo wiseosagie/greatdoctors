@@ -77,6 +77,9 @@ export default function Footer() {
           <p className="footer__disclaimer">
             Great Doctors USA is a telemedicine platform. Services are provided by licensed physicians. Not for emergency medical situations — call 911 if you are experiencing a medical emergency.
           </p>
+          <p className="footer__disclaimer">
+            <strong style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>Pharmacy Notice:</strong> Great Doctors USA does not dispense or ship medication directly to patients. Upon approval, prescriptions are sent electronically to a pharmacy of your choice. Patients are responsible for picking up their medication at their selected pharmacy.
+          </p>
         </div>
       </div>
 

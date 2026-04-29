@@ -13,6 +13,10 @@ import AuthPage from './pages/AuthPage'
 import PatientDashboard from './pages/PatientDashboard'
 import WeightLossPage from './pages/WeightLossPage'
 import ConsultationSuccessPage from './pages/ConsultationSuccessPage'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+import TermsPage from './pages/TermsPage'
+import HipaaPage from './pages/HipaaPage'
+import RefundPolicyPage from './pages/RefundPolicyPage'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -39,6 +43,10 @@ function Layout() {
           <Route path="/dashboard"            element={<PatientDashboard />} />
           <Route path="/weight-loss"          element={<WeightLossPage />} />
           <Route path="/consult/success"      element={<ConsultationSuccessPage />} />
+          <Route path="/privacy-policy"       element={<PrivacyPolicyPage />} />
+          <Route path="/terms"                element={<TermsPage />} />
+          <Route path="/hipaa"                element={<HipaaPage />} />
+          <Route path="/refund-policy"        element={<RefundPolicyPage />} />
           <Route path="*"                     element={<HomePage />} />
         </Routes>
       </main>

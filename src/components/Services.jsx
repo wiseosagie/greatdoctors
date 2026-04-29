@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRef, useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { SERVICE_TO_QUESTION_MAP } from '../data/questions'
 
@@ -119,8 +119,22 @@ const categories = [
 export default function Services() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
-  const [active, setActive] = useState('all')
+  const [searchParams] = useSearchParams()
+  const [active, setActive] = useState(() => {
+    const tab = searchParams.get('tab')
+    return tab && categories.find(c => c.id === tab) ? tab : 'all'
+  })
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && categories.find(c => c.id === tab)) {
+      setActive(tab)
+      setTimeout(() => {
+        document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }, [searchParams])
 
   const handleServiceClick = (serviceName) => {
     if (serviceName === 'Weight Loss Medications') {

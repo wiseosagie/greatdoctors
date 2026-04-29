@@ -9,11 +9,11 @@ const Logo = () => (
 
 const links = {
   Services: [
-    { label: 'Sexual Health',  to: '/services' },
-    { label: 'Urgent Care',    to: '/services' },
-    { label: "Men's Health",   to: '/services' },
-    { label: 'Mental Health',  to: '/services' },
-    { label: 'Lab Tests',      to: '/services' },
+    { label: 'Sexual Health',  to: '/services?tab=sexual' },
+    { label: 'Urgent Care',    to: '/services?tab=urgent' },
+    { label: "Men's Health",   to: '/services?tab=mens' },
+    { label: 'Mental Health',  to: '/services?tab=mental' },
+    { label: 'Lab Tests',      to: '/services?tab=labs' },
   ],
   Company: [
     { label: 'How It Works',   to: '/' },
@@ -21,10 +21,10 @@ const links = {
     { label: 'Contact Us',     to: '/contact' },
   ],
   Legal: [
-    { label: 'Privacy Policy',       to: '/contact' },
-    { label: 'Terms & Conditions',   to: '/contact' },
-    { label: 'HIPAA Notice',         to: '/contact' },
-    { label: 'Refund Policy',        to: '/contact' },
+    { label: 'Privacy Policy',       to: '/privacy-policy' },
+    { label: 'Terms & Conditions',   to: '/terms' },
+    { label: 'HIPAA Notice',         to: '/hipaa' },
+    { label: 'Refund Policy',        to: '/refund-policy' },
   ],
 }
 
